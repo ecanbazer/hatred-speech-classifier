@@ -1,5 +1,10 @@
 # example usage: python3 train.py --file ./data/train.csv
 
+# If run with default settings, generated files:
+# counter.pickle -- with token frequencies of initial data for frequency filtering
+# vocab.json -- with mapping from tokens to ids
+# checkpoint.pth -- the trained model
+
 import pickle
 import json
 import argparse
@@ -9,13 +14,23 @@ from torch import nn
 import pandas as pd
 import matplotlib.pyplot as plt
 from collections import Counter
+import params
 from functions import awesome_preprocessor, evaluate, Dataset, HatredSpeechLSTM, stops, lemmatizer
 
-parser = argparse.ArgumentParser(description='Script to train LSTM system for hatred speech detection.')
-parser.add_argument('--file', type=str, help='The csv file with tweets we want to train our system on.')
+parser = argparse.ArgumentParser(description='Script to train LSTM system for hatred speech detection')
+parser.add_argument('--file', type=str, help='The csv file with tweets we want to train our system on')
+parser.add_argument('--params', type=str, help='File with NN params', default='params.py')
+parser.add_argument('--counter', type=str, help='Path for out counter file', default='counter.pickle')
+parser.add_argument('--mapping', type=str, help='Path for out mapping file', default='vocab.json')
+parser.add_argument('--model', type=str, help='Path for out model checkpoint file', default='checkpoint.pth')
 
 if __name__ == '__main__':
     args = parser.parse_args()
+    params_path = args.params
+    counter_path = args.counter
+    mapping_path = args.mapping
+    model_path = args.model
+
     train = pd.read_csv(args.file)
 
     # create a vocabulary of the dataset and count the occurences of each word (for frequency filtering)
@@ -24,25 +39,25 @@ if __name__ == '__main__':
     counter = Counter(vocab)
 
     # save counter to use it on new data too
-    with open('counter.pickle', 'wb') as outputfile:
+    with open(counter_path, 'wb') as outputfile:
         pickle.dump(counter, outputfile)
 
-    train["cleaned"] = awesome_preprocessor(train["tweet"], stops, lemmatizer, counter)
+    train['cleaned'] = awesome_preprocessor(train['tweet'], stops, lemmatizer, counter)
 
     dataset = Dataset(train)
     dataset.vectorizer()
 
     # write down the max len of tweets in training data
-    with open("params.py","a") as params:
-        params.write("\n")
-        params.write(f'max_len = {dataset.max_len}\n')
+    with open(params_path, 'a') as params_file:
+        params_file.write('\n')
+        params_file.write(f'max_len = {dataset.max_len}\n')
 
     # save the token-int mapping built on training data
-    with open("vocab.json", "w") as outfile:
+    with open(mapping_path, 'w') as outfile:
         json.dump(dataset.vocab, outfile)
 
     batch_size = params.batch_size
-    train_loader, valid_loader, test_loader, vocab = dataset.loaders(batch_size)
+    train_loader, valid_loader, test_loader = dataset.loaders(batch_size)
 
     # obtain one batch of training data
     dataiter = iter(train_loader)
@@ -56,10 +71,10 @@ if __name__ == '__main__':
     print(len(train_loader))
 
     # Instantiate the model with hyperparams
-    vocab_size = len(dataset.vocab) + 1  # +1 is for zeros in padding
-    with open("params.py","a") as params:
-        params.write("\n")
-        params.write(f'vocab_size = {vocab_size}\n')
+    vocab_size = len(dataset.vocab) + 1  # to account for 0 for padding
+    with open(params_path, 'a') as params_file:
+        params_file.write("\n")
+        params_file.write(f'vocab_size = {vocab_size}\n')
 
     output_size = params.output_size
     embedding_dim = params.embedding_dim
@@ -113,7 +128,7 @@ if __name__ == '__main__':
     plt.savefig('output.png')  # save picture with losses and fmeasure
 
     # save the model to a checkpoint
-    torch.save(model.state_dict(), 'checkpoint.pth')
+    torch.save(model.state_dict(), model_path)
 
     # evaluate on test
     loss_last_epoch, f_measure = evaluate(net, test_loader, batch_size, criterion, train_on_gpu)

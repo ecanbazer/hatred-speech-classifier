@@ -37,15 +37,15 @@ def awesome_preprocessor(dataset, stopwords, lemmatizer, counter):
     tweet = emoji.demojize(tweet.replace(':', ' '))  # de-emojizing adds unnecessary colons, like ':red_heart:'
     tweet = p.clean(tweet)  # apply tweet-preprocessor
     tweet = deaccent(tweet)  # de-accents with gensim's deaccent tool
-    tweet = REPLACE_NO_SPACE.sub("", tweet.lower())
-    tweet = REPLACE_WITH_SPACE.sub(" ", tweet)
+    tweet = REPLACE_NO_SPACE.sub('', tweet.lower())
+    tweet = REPLACE_WITH_SPACE.sub(' ', tweet)
     tokens = nltk.word_tokenize(tweet)
     lemmas = [lemmatizer.lemmatize(token) for token in tokens]
     filtered = []
     for lemma in lemmas:
       if counter[lemma] > 1 and lemma.isalpha() and len(lemma) > 2:
         filtered.append(lemma)
-    tweet = " ".join(filtered).replace('#', '')
+    tweet = ' '.join(filtered).replace('#', '')
     cleaned.append(tweet)
 
   return cleaned
@@ -64,7 +64,7 @@ def index_and_pad(list_tweets, vocab, max_len):
     int_tweet = [vocab[w] if w in vocab else vocab['<unk>'] for w in tweet.split()]
     tweets_int.append(int_tweet)
 
-  features = np.zeros((len(tweets_int), max_len), dtype = int)
+  features = np.zeros((len(tweets_int), max_len), dtype=int)
   for i, tweet in enumerate(tweets_int):
       tweet_len = len(tweet)
 
@@ -86,7 +86,7 @@ def create_vocab(list_sents):
     list_sents: the list with the text data
     """
     vocab=[]
-    data_set = " ".join(list_sents)
+    data_set = ' '.join(list_sents)
     split_it = data_set.split()
     counter = Counter(split_it)
     #most_occur = counter.most_common(n)
@@ -94,22 +94,23 @@ def create_vocab(list_sents):
         vocab.append(word)
     vocab.append('<unk>')
     vocab = sorted(vocab)
-    vocab = {w:i +1 for i, w in enumerate(vocab)}
+    vocab = {w:i for i, w in enumerate(vocab)}
     return vocab
 
 
 def oversample(train_sample):
+  """Oversample minoriity class because of the imbalance"""
   # Separate majority and minority classes in training data for oversampling
   train_majority = train_sample[train_sample['label'] == 0]
   train_minority = train_sample[train_sample['label'] == 1]
 
-  print("majority class before oversample: ", train_majority.shape)
-  print("minority class before oversample: ", train_minority.shape)
+  print('majority class before oversample: ', train_majority.shape)
+  print('minority class before oversample: ', train_minority.shape)
 
   # Upsample minority class
   train_minority_oversampled = resample(train_minority,
                                  replace=True,      # sample with replacement
-                                 n_samples= train_majority.shape[0],  # to match majority class
+                                 n_samples=train_majority.shape[0],  # to match majority class
                                  random_state=123)  # reproducible results
 
   # Combine majority class with oversampled minority class
@@ -117,12 +118,12 @@ def oversample(train_sample):
   # shuffling the data
   train_oversampled = train_oversampled.sample(frac=1).reset_index(drop=True)
   # Display new class counts
-  print("After oversampling\n", train_oversampled.label.value_counts(), sep = "")
+  print('After oversampling\n', train_oversampled.label.value_counts(), sep='')
   return train_oversampled
 
 
 class Dataset():
-  """Dataset class for creating train, test, and val datasets (prepare the data). """
+  """Dataset class for creating train, test, and val datasets (prepare the data)."""
 
   def __init__(self, train, random_state=1, test_size=0.2):
     """Define train, validation, and test data."""
@@ -146,9 +147,9 @@ class Dataset():
     self.max_len = len(max([tweet.split() for tweet in self.x_train], key=len))
 
     # oversample data and create balanced train dataset
-    train_over = oversample(pd.DataFrame({"tweet": self.x_train, "label": self.y_train}))
-    self.y_train = train_over["label"].to_numpy()
-    self.x_train = train_over["tweet"]
+    train_over = oversample(pd.DataFrame({'tweet': self.x_train, 'label': self.y_train}))
+    self.y_train = train_over['label'].to_numpy()
+    self.x_train = train_over['tweet']
 
     # convert datasets to integers and pad them
     self.x_train = index_and_pad(self.x_train, self.vocab, self.max_len)
@@ -221,7 +222,7 @@ class HatredSpeechLSTM(nn.Module):
 
 
     def init_hidden(self, batch_size):
-        ''' Initialize hidden state '''
+        """Initialize hidden state."""
         # Create two new tensors with sizes n_layers x batch_size x hidden_dim,
         # initialized to zero, for hidden state and cell state of LSTM
         weight = next(self.parameters()).data
@@ -242,7 +243,7 @@ def train(net, epochs, train_loader, clip, batch_size, criterion, optimizer, tra
   loss_train_all_epochs = []
   loss_val_all_epochs = []
   fmeasure_val_all_epochs = []
-  best_fmeasure = 0  # "optimal" f-measure that will be used to perform validation
+  best_fmeasure = 0  # 'optimal' f-measure that will be used to perform validation
 
   # training loop
   for e in range(epochs):
@@ -286,7 +287,7 @@ def train(net, epochs, train_loader, clip, batch_size, criterion, optimizer, tra
     if valid_loader is None:  # if we don't have any validation data
       val_loss_current_epoch, fmeasure_current_epoch = 0, 0
     else:
-      val_loss_current_epoch, fmeasure_current_epoch = evaluate(net, valid_loader)
+      val_loss_current_epoch, fmeasure_current_epoch = evaluate(net, valid_loader, batch_size, criterion, train_on_gpu)
     loss_val_all_epochs.append(val_loss_current_epoch)
     fmeasure_val_all_epochs.append(fmeasure_current_epoch)
 
@@ -296,7 +297,7 @@ def train(net, epochs, train_loader, clip, batch_size, criterion, optimizer, tra
                .format(e+1, epochs, loss_current_epoch, loss_current_epoch / len(train_loader), val_loss_current_epoch,
                        val_loss_current_epoch / (len(valid_loader) if valid_loader else 1), fmeasure_current_epoch))
 
-    # save the model to variable if the fmeasure is higher than the "optimal" value
+    # save the model to variable if the fmeasure is higher than the 'optimal' value
     if fmeasure_current_epoch >= best_fmeasure:
       model_opt = net
       best_fmeasure = fmeasure_current_epoch

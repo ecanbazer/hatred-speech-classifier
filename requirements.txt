@@ -1,0 +1,9 @@
+emoji==1.6.3
+gensim==3.6.0
+matplotlib==3.2.2
+nltk==3.2.5
+numpy==1.19.5
+pandas==1.1.5
+scikit-learn==1.0.2
+torch==1.10.0+cu111
+tweet-preprocessor==0.6.0

@@ -11,10 +11,10 @@ drop_prob = 0.5
 lr = 0.001
 criterion = 'BCE'
 optimizer = 'Adam'
-epochs = 10
+epochs = 15
 clip = 5  # gradient clipping
 
 
-# other params
-max_len = 20
-vocab_size = 12250
+# other params -- written during training
+max_len = 26
+vocab_size = 12237
