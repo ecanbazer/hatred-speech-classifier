@@ -18,3 +18,16 @@ clip = 5  # gradient clipping
 # other params -- written during training
 max_len = 26
 vocab_size = 12237
+max_len = 20
+
+max_len = 20
+
+max_len = 20
+
+max_len = 20
+
+vocab_size = 12250
+
+max_len = 20
+
+vocab_size = 12250

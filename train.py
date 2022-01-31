@@ -15,7 +15,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from collections import Counter
 import params
-from functions import awesome_preprocessor, evaluate, Dataset, HatredSpeechLSTM, stops, lemmatizer
+from functions import awesome_preprocessor, evaluate, Dataset, HatredSpeechLSTM, stops, lemmatizer, training
 
 parser = argparse.ArgumentParser(description='Script to train LSTM system for hatred speech detection')
 parser.add_argument('--file', type=str, help='The csv file with tweets we want to train our system on')
@@ -57,7 +57,7 @@ if __name__ == '__main__':
         json.dump(dataset.vocab, outfile)
 
     batch_size = params.batch_size
-    train_loader, valid_loader, test_loader = dataset.loaders(batch_size)
+    train_loader, valid_loader, test_loader, vocab  = dataset.loaders(batch_size)
 
     # obtain one batch of training data
     dataiter = iter(train_loader)
@@ -109,7 +109,7 @@ if __name__ == '__main__':
     clip = params.clip  # gradient clipping
 
     # training
-    model, loss_train_all_epochs, loss_val_all_epochs, fmeasure_val_all_epochs = train(net, epochs, train_loader, clip, batch_size,
+    model, loss_train_all_epochs, loss_val_all_epochs, fmeasure_val_all_epochs = training(net, epochs, train_loader, clip, batch_size,
                                                                                        criterion, optimizer, train_on_gpu, valid_loader)
     # returned 'model' is the best among epochs according to fmeasure on validation data
 

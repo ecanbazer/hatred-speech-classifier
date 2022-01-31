@@ -237,7 +237,7 @@ class HatredSpeechLSTM(nn.Module):
         return hidden
 
 
-def train(net, epochs, train_loader, clip, batch_size, criterion, optimizer, train_on_gpu, valid_loader=None):
+def training(net, epochs, train_loader, clip, batch_size, criterion, optimizer, train_on_gpu, valid_loader=None):
   net.train()
 
   loss_train_all_epochs = []
