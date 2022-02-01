@@ -57,7 +57,7 @@ if __name__ == '__main__':
         json.dump(dataset.vocab, outfile)
 
     batch_size = params.batch_size
-    train_loader, valid_loader, test_loader, vocab  = dataset.loaders(batch_size)
+    train_loader, valid_loader, test_loader  = dataset.loaders(batch_size)
 
     # obtain one batch of training data
     dataiter = iter(train_loader)

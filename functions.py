@@ -168,7 +168,7 @@ class Dataset():
     valid_loader = DataLoader(valid_data, shuffle=True, batch_size=batch_size)
     test_loader = DataLoader(test_data, shuffle=True, batch_size=batch_size)
 
-    return train_loader, valid_loader, test_loader, self.vocab
+    return train_loader, valid_loader, test_loader
 
 
 class HatredSpeechLSTM(nn.Module):
