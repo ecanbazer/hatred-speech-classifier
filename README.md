@@ -2,7 +2,7 @@
 
 #### The goal of this project is to detect hate speech in tweets using RNN, classifying if a hate speech in tweet contains a racist/sexist message. The [dataset](https://www.kaggle.com/arkhoshghalb/twitter-sentiment-analysis-hatred-speech?select=test.csv) used in this task consist of tweets message and its labels, where the tweet is considered racista/sexist if its label is '1', otherwise '0', and the main objective is to predict this labels.
 
-Run the train.py:
+Run the [train.py](train.py):
 * example usage: python3 train.py --file ./data/train.csv
 
 * If run with default settings, generated files:
@@ -12,7 +12,7 @@ Run the train.py:
 
 * In order of understand better the training procedure, the implementation description step by step, take a look at [train_as_jp_notebook.ipynb](train_as_jp_notebook.ipynb) file.
 
-Run the test.py:
+Run the [test.py](test.py):
 * example usage: python3 test.py --file ./data/test.csv
 
 * If run with default settings, generated files:
