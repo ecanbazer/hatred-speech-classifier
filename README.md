@@ -10,7 +10,7 @@ Run the train.py:
   2. vocab.json -- with mapping from tokens to ids
   3. checkpoint.pth -- the trained model
 
-* If want to understand better the training procedure, the implementation step by step, can take a look at [train_as_jp_notebook.ipynb](train_as_jp_notebook.ipynb) file.
+* In order of understand better the training procedure, the implementation step by step, take a look at [train_as_jp_notebook.ipynb](train_as_jp_notebook.ipynb) file.
 
 Run the test.py:
 * example usage: python3 test.py --file ./data/test.csv
